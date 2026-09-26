@@ -13,7 +13,7 @@ from deepeval.metrics import GEval
 from deepeval.dataset import EvaluationDataset
 
 from api_client import detect_intent
-from conftest import json_schema_metric, output_correctness_metric, answer_relevancy_metric
+from conftest import json_schema_metric, output_correctness_metric
 
 
 # ---------------------------------------------------------------------------
@@ -153,7 +153,24 @@ intent_primary_metric = GEval(
     threshold=0.5,
 )
 
-intent_relevancy_metric = answer_relevancy_metric()
+# Intent output describes purpose, not topic, so the generic topical
+# relevancy metric does not apply here.
+intent_relevancy_metric = GEval(
+    name="Intent Relevancy",
+    criteria=(
+        "Evaluate whether the intent analysis in the actual output is relevant "
+        "to what the author of the input text is trying to accomplish. The "
+        "output is intent metadata only (a primary intent, optional secondary "
+        "intents, a category, and a confidence); do NOT penalize it for not "
+        "restating the topics or details of the input. Secondary intents that "
+        "are reasonable sub-goals of the input should be considered relevant."
+    ),
+    evaluation_params=[
+        LLMTestCaseParams.INPUT,
+        LLMTestCaseParams.ACTUAL_OUTPUT,
+    ],
+    threshold=0.5,
+)
 
 
 # ---------------------------------------------------------------------------
